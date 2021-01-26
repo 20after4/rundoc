@@ -17,7 +17,7 @@ def mkd_to_html(mkd, tags='', must_have_tags='', must_not_have_tags='',
     """Read markdown stream and return html string."""
     html_data = markdown.markdown(
         mkd,
-        extensions = [ 
+        extensions = [
             RundocCodeExtension(
                 tags=tags,
                 must_have_tags=must_have_tags,
@@ -81,9 +81,9 @@ def parse_doc(input, tags="", must_have_tags="", must_not_have_tags="",
             if single_session:
                 all_code += element.getText()
             else:
-                commander.add(element.getText(), tags_list, light)
+                commander.add(element.getText(), tags_list, element)
     if single_session:
-        commander.add(all_code, [single_session], light)
+        commander.add(all_code, [single_session], None)
 
     # find environments
     def is_environment(tag):

@@ -183,6 +183,13 @@ def clean_doc(**kwargs): # pragma: no cover
         logger.error('Failed to parse file: {}'.format(e))
         sys.exit(1)
 
+@cli.command(name='html')
+@click.argument('input', type=click.File('r'))
+def html(**kwargs):
+    "Read markdown file and output html to stdout."
+    input = kwargs["input"]
+    mkd = input.read()
+    print(parsers.mkd_to_html(mkd))
 if __name__ == '__main__': # pragma: no cover
     cli()
 

@@ -17,7 +17,9 @@ import re
 import select
 import subprocess
 import sys
+import tempfile
 import time
+
 
 block_actions = OrderedDict()
 def block_action(f):
@@ -139,6 +141,20 @@ def _usage(args, contents): # pragma: no cover
     """
     sys.exit(0)
 
+@block_action
+def _kitty_session(args, contents):
+    tmp = tempfile.NamedTemporaryFile(delete=False)
+    args[0] = tmp.name
+    tmp.close()
+    res = _write_file_action(args, contents, 'w+')
+    kitty = subprocess.Popen(
+                    ['kitty', '--session', tmp.name],
+                    stdin=subprocess.PIPE,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    shell=False,
+                    )
+
 def get_block_action(tag):
     "Return an action function based on code block tag."
     parts_list = list(filter(bool, tag.split(':')))
@@ -161,14 +177,11 @@ class DocBlock(object):
             'output': Full output of executed code block.
             'retcode': exit code of the code block executed
     """
-    def __init__(self, code, tags, light=False):
-        if light:
-            from pygments.styles.manni import ManniStyle as HighlightStyle
-            self.HighlightStyle = HighlightStyle
-        else:
-            from pygments.styles.native import NativeStyle as HighlightStyle
-            self.HighlightStyle = HighlightStyle
+    def __init__(self, code, tags, element):
+        from pygments.styles.native import NativeStyle as HighlightStyle
+        self.HighlightStyle = HighlightStyle
         interpreter = tags[0]
+        self.element = element
         self.interpreter = interpreter
         self.code = code
         self.tags = tags

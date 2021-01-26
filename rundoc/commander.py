@@ -124,7 +124,7 @@ class DocCommander(object):
             'code_blocks': [ x.get_dict() for x in self.doc_blocks ]
         }
 
-    def add(self, code, tags, light=False):
+    def add(self, code, tags, element):
         if self.running:
             raise RundocException("Modifying a running DocCommander object.")
         try:
@@ -132,7 +132,7 @@ class DocCommander(object):
                 DocBlock(
                     code=code,
                     tags=tags,
-                    light=light,
+                    element=element,
                     )
                 )
         except RundocException as re:
@@ -205,6 +205,11 @@ class DocCommander(object):
             prompt_text = "\n{}=== Step {}/{} {}{}".format(
                 ansi.bold, self.step, len(self.doc_blocks), tags, ansi.end)
             print(prompt_text)
+            if self.doc_block.element:
+                p = self.doc_block.element.find_previous('p')
+                if p:
+                    doc_text = "{}{}¶{} {}".format(ansi.bold,ansi.red,ansi.end,p.getText())
+                    print(doc_text)
             if not prompt_this_time:
                 print(self.doc_block)
                 sleep(pause)
